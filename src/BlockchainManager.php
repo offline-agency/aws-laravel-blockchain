@@ -73,7 +73,7 @@ class BlockchainManager
     {
         $drivers = [];
 
-        foreach ($this->config['drivers'] as $name => $config) {
+        foreach (($this->config['drivers'] ?? []) as $name => $config) {
             try {
                 $driver = $this->createDriver($name);
                 $drivers[$name] = [
@@ -98,7 +98,13 @@ class BlockchainManager
      */
     public function setDefaultDriver(string $name): void
     {
+        $oldDefault = $this->defaultDriver;
         $this->defaultDriver = $name;
+
+        // Clear cached driver if default changed
+        if ($oldDefault !== $name && isset($this->drivers[$oldDefault])) {
+            unset($this->drivers[$oldDefault]);
+        }
     }
 
     /**

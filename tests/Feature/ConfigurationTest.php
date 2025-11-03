@@ -72,6 +72,12 @@ class ConfigurationTest extends TestCase
 
     public function test_config_publishing_works()
     {
+        // Publish the config file
+        $this->artisan('vendor:publish', [
+            '--provider' => 'AwsBlockchain\Laravel\AwsBlockchainServiceProvider',
+            '--tag' => 'aws-blockchain-laravel-config',
+        ]);
+
         $this->assertFileExists(config_path('aws-blockchain-laravel.php'));
 
         $config = include config_path('aws-blockchain-laravel.php');

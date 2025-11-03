@@ -49,12 +49,6 @@ class QldbDriverTest extends TestCase
 
     public function test_can_record_event_successfully()
     {
-        $driver = new QldbDriver($this->config);
-
-        // Mock the clients
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         // Mock session token
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
@@ -77,6 +71,8 @@ class QldbDriverTest extends TestCase
             }))
             ->andReturn(new Result(['ExecuteStatement' => ['TransactionId' => 'test-tx-id']]));
 
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
+
         $data = ['test' => 'data'];
         $eventId = $driver->recordEvent($data);
 
@@ -86,14 +82,11 @@ class QldbDriverTest extends TestCase
 
     public function test_handles_record_event_exception()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('sendCommand')));
+
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
 
         $this->expectException(AwsException::class);
 
@@ -102,11 +95,6 @@ class QldbDriverTest extends TestCase
 
     public function test_can_get_event_successfully()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         $expectedData = ['test' => 'data'];
 
         // Mock session token
@@ -139,6 +127,8 @@ class QldbDriverTest extends TestCase
                 ],
             ]));
 
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
+
         $result = $driver->getEvent('test-event-id');
 
         $this->assertEquals($expectedData, $result);
@@ -146,14 +136,11 @@ class QldbDriverTest extends TestCase
 
     public function test_handles_get_event_exception()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('sendCommand')));
+
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
 
         $result = $driver->getEvent('test-event-id');
 
@@ -162,11 +149,6 @@ class QldbDriverTest extends TestCase
 
     public function test_returns_null_for_empty_get_event_result()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         // Mock session token
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
@@ -185,6 +167,8 @@ class QldbDriverTest extends TestCase
             ->once()
             ->andReturn(new Result(['ExecuteStatement' => ['FirstPage' => []]]));
 
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
+
         $result = $driver->getEvent('nonexistent-event-id');
 
         $this->assertNull($result);
@@ -192,11 +176,6 @@ class QldbDriverTest extends TestCase
 
     public function test_can_verify_integrity_successfully()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         $testData = ['test' => 'data'];
         $expectedHash = hash('sha256', json_encode($testData).'test-ledger');
 
@@ -230,6 +209,8 @@ class QldbDriverTest extends TestCase
                 ],
             ]));
 
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
+
         $result = $driver->verifyIntegrity('test-event-id', $testData);
 
         $this->assertTrue($result);
@@ -237,14 +218,11 @@ class QldbDriverTest extends TestCase
 
     public function test_handles_verify_integrity_exception()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('sendCommand')));
+
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
 
         $result = $driver->verifyIntegrity('test-event-id', ['test' => 'data']);
 
@@ -253,11 +231,6 @@ class QldbDriverTest extends TestCase
 
     public function test_returns_false_for_empty_verify_integrity_result()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-        $this->app->instance(QldbSessionClient::class, $this->mockSessionClient);
-
         // Mock session token
         $this->mockClient->shouldReceive('sendCommand')
             ->once()
@@ -276,6 +249,8 @@ class QldbDriverTest extends TestCase
             ->once()
             ->andReturn(new Result(['ExecuteStatement' => ['FirstPage' => []]]));
 
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
+
         $result = $driver->verifyIntegrity('nonexistent-event-id', ['test' => 'data']);
 
         $this->assertFalse($result);
@@ -283,14 +258,12 @@ class QldbDriverTest extends TestCase
 
     public function test_can_check_availability_successfully()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('describeLedger')
             ->once()
             ->with(['Name' => 'test-ledger'])
             ->andReturn(new Result(['Ledger' => ['Name' => 'test-ledger']]));
+
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
 
         $result = $driver->isAvailable();
 
@@ -299,13 +272,11 @@ class QldbDriverTest extends TestCase
 
     public function test_handles_availability_check_exception()
     {
-        $driver = new QldbDriver($this->config);
-
-        $this->app->instance(QldbClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('describeLedger')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('describeLedger')));
+
+        $driver = new QldbDriver($this->config, $this->mockClient, $this->mockSessionClient);
 
         $result = $driver->isAvailable();
 

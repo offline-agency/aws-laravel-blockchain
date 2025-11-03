@@ -49,11 +49,6 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_can_record_event_successfully()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        // Mock the client to return a successful result
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('invoke')
             ->once()
             ->with(Mockery::on(function ($args) {
@@ -66,6 +61,8 @@ class ManagedBlockchainDriverTest extends TestCase
             }))
             ->andReturn(new Result(['TransactionId' => 'test-tx-id']));
 
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
+
         $data = ['test' => 'data'];
         $eventId = $driver->recordEvent($data);
 
@@ -75,13 +72,11 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_handles_record_event_exception()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('invoke')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('invoke')));
+
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
 
         $this->expectException(AwsException::class);
 
@@ -90,10 +85,6 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_can_get_event_successfully()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $expectedData = ['test' => 'data'];
         $this->mockClient->shouldReceive('invoke')
             ->once()
@@ -103,6 +94,8 @@ class ManagedBlockchainDriverTest extends TestCase
             }))
             ->andReturn(new Result(['Payload' => json_encode($expectedData)]));
 
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
+
         $result = $driver->getEvent('test-event-id');
 
         $this->assertEquals($expectedData, $result);
@@ -110,13 +103,11 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_handles_get_event_exception()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('invoke')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('invoke')));
+
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
 
         $result = $driver->getEvent('test-event-id');
 
@@ -125,10 +116,6 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_can_verify_integrity_successfully()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('invoke')
             ->once()
             ->with(Mockery::on(function ($args) {
@@ -137,6 +124,8 @@ class ManagedBlockchainDriverTest extends TestCase
             }))
             ->andReturn(new Result(['Payload' => json_encode(['verified' => true])]));
 
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
+
         $result = $driver->verifyIntegrity('test-event-id', ['test' => 'data']);
 
         $this->assertTrue($result);
@@ -144,13 +133,11 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_handles_verify_integrity_exception()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('invoke')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('invoke')));
+
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
 
         $result = $driver->verifyIntegrity('test-event-id', ['test' => 'data']);
 
@@ -159,14 +146,12 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_can_check_availability_successfully()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('describeNetwork')
             ->once()
             ->with(['NetworkId' => 'test-network'])
             ->andReturn(new Result(['Network' => ['Id' => 'test-network']]));
+
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
 
         $result = $driver->isAvailable();
 
@@ -175,13 +160,11 @@ class ManagedBlockchainDriverTest extends TestCase
 
     public function test_handles_availability_check_exception()
     {
-        $driver = new ManagedBlockchainDriver($this->config);
-
-        $this->app->instance(ManagedBlockchainClient::class, $this->mockClient);
-
         $this->mockClient->shouldReceive('describeNetwork')
             ->once()
             ->andThrow(new AwsException('Network error', new \Aws\Command('describeNetwork')));
+
+        $driver = new ManagedBlockchainDriver($this->config, $this->mockClient);
 
         $result = $driver->isAvailable();
 

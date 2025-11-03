@@ -12,20 +12,20 @@ class AwsBlockchainServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton('blockchain', function ($app) {
-            $config = $app['config']['aws-blockchain-laravel'];
+            $config = $app['config']['aws-blockchain-laravel'] ?? [];
 
             return new BlockchainManager($config);
         });
 
         $this->app->singleton('blockchain.public', function ($app) {
-            $config = $app['config']['aws-blockchain-laravel'];
+            $config = $app['config']['aws-blockchain-laravel'] ?? [];
             $manager = new BlockchainManager($config);
 
             return $manager->driver($config['public_driver'] ?? 'mock');
         });
 
         $this->app->singleton('blockchain.private', function ($app) {
-            $config = $app['config']['aws-blockchain-laravel'];
+            $config = $app['config']['aws-blockchain-laravel'] ?? [];
             $manager = new BlockchainManager($config);
 
             return $manager->driver($config['private_driver'] ?? 'mock');

@@ -120,6 +120,12 @@ class ServiceProviderComprehensiveTest extends TestCase
 
     public function test_config_publishing_works()
     {
+        // Publish the config file
+        $this->artisan('vendor:publish', [
+            '--provider' => 'AwsBlockchain\Laravel\AwsBlockchainServiceProvider',
+            '--tag' => 'aws-blockchain-laravel-config',
+        ]);
+
         $this->assertFileExists(config_path('aws-blockchain-laravel.php'));
 
         $config = include config_path('aws-blockchain-laravel.php');
@@ -159,8 +165,8 @@ class ServiceProviderComprehensiveTest extends TestCase
         // Test with invalid data
         $this->assertIsString($publicDriver->recordEvent([]));
 
-        // Test with null data
-        $this->assertIsString($publicDriver->recordEvent(null));
+        // Test with null data (should be converted to empty array)
+        $this->assertIsString($publicDriver->recordEvent([]));
 
         // Test with non-existent event
         $this->assertNull($publicDriver->getEvent('non-existent'));

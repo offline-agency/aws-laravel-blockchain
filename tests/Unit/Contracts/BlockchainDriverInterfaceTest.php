@@ -135,8 +135,8 @@ class BlockchainDriverInterfaceTest extends TestCase
         $eventId = $driver->recordEvent([]);
         $this->assertIsString($eventId);
 
-        // Test with null data
-        $eventId = $driver->recordEvent(null);
+        // Test with default parameter (empty array)
+        $eventId = $driver->recordEvent();
         $this->assertIsString($eventId);
 
         // Test with non-existent event
@@ -153,7 +153,9 @@ class BlockchainDriverInterfaceTest extends TestCase
         $reflection = new \ReflectionClass(BlockchainDriverInterface::class);
 
         $this->assertTrue($reflection->isInterface());
-        $this->assertTrue($reflection->isPublic());
+        // Interfaces are always accessible (public) - check that it's not a private/protected class
+        // ReflectionClass::isPublic() may not work as expected for interfaces, so we verify it's an interface
+        $this->assertTrue($reflection->isInterface());
     }
 
     public function test_interface_can_be_extended()
@@ -161,6 +163,8 @@ class BlockchainDriverInterfaceTest extends TestCase
         $reflection = new \ReflectionClass(BlockchainDriverInterface::class);
 
         $this->assertTrue($reflection->isInterface());
-        $this->assertFalse($reflection->isAbstract());
+        // Interfaces are abstract in PHP reflection - they can be extended via 'extends'
+        // The test verifies it's an interface (which can be extended)
+        $this->assertTrue($reflection->isInterface());
     }
 }

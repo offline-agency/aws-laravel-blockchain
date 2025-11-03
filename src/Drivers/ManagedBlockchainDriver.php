@@ -22,8 +22,9 @@ class ManagedBlockchainDriver implements BlockchainDriverInterface
 
     /**
      * @param  array<string, mixed>  $config
+     * @param  ManagedBlockchainClient|null  $client
      */
-    public function __construct(array $config)
+    public function __construct(array $config, ?ManagedBlockchainClient $client = null)
     {
         $this->networkId = $config['network_id'] ?? null;
         $this->memberId = $config['member_id'] ?? null;
@@ -31,7 +32,7 @@ class ManagedBlockchainDriver implements BlockchainDriverInterface
         $this->channelName = $config['channel_name'] ?? 'mychannel';
         $this->chaincodeName = $config['chaincode_name'] ?? 'supply-chain';
 
-        $this->client = new ManagedBlockchainClient([
+        $this->client = $client ?? new ManagedBlockchainClient([
             'version' => 'latest',
             'region' => $config['region'] ?? 'us-east-1',
             'credentials' => [

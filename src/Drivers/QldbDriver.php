@@ -17,12 +17,14 @@ class QldbDriver implements BlockchainDriverInterface
 
     /**
      * @param  array<string, mixed>  $config
+     * @param  QLDBClient|null  $client
+     * @param  QLDBSessionClient|null  $sessionClient
      */
-    public function __construct(array $config)
+    public function __construct(array $config, ?QLDBClient $client = null, ?QLDBSessionClient $sessionClient = null)
     {
         $this->ledgerName = $config['ledger_name'] ?? 'supply-chain-ledger';
 
-        $this->client = new QLDBClient([
+        $this->client = $client ?? new QLDBClient([
             'version' => 'latest',
             'region' => $config['region'] ?? 'us-east-1',
             'credentials' => [
@@ -31,7 +33,7 @@ class QldbDriver implements BlockchainDriverInterface
             ],
         ]);
 
-        $this->sessionClient = new QLDBSessionClient([
+        $this->sessionClient = $sessionClient ?? new QLDBSessionClient([
             'version' => 'latest',
             'region' => $config['region'] ?? 'us-east-1',
             'credentials' => [
