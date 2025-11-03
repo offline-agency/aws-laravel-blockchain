@@ -1,0 +1,15 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/laravel/framework/phpstan.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+    excludePaths:
+        - tests
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Support\\Facades\\Facade::__callStatic\(\)#'
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    reportUnmatchedIgnoredErrors: false
