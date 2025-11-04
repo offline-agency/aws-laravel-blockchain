@@ -1,5 +1,5 @@
 {
-    "name": "aws-blockchain-laravel/aws-blockchain-laravel",
+    "name": "offline-agency/aws-blockchain-laravel",
     "description": "AWS Blockchain integration package for Laravel supply chain applications",
     "type": "library",
     "license": "MIT",
