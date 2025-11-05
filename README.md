@@ -1,11 +1,8 @@
 # AWS Blockchain Laravel Package
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/aws-blockchain-laravel/aws-blockchain-laravel.svg?style=flat-square)](https://packagist.org/packages/offline-agency/aws-blockchain-laravel)
-
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/aws-blockchain-laravel/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/aws-blockchain-laravel/actions?query=workflow%3Arun-tests+branch%3Amain)
-
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/aws-blockchain-laravel/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/offline-agency/aws-blockchain-laravel/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/aws-blockchain-laravel.svg?style=flat-square)](https://packagist.org/packages/offline-agency/aws-blockchain-laravel)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/aws-laravel-blockchain/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/aws-laravel-blockchain/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/aws-laravel-blockchain/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/offline-agency/aws-laravel-blockchain/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/aws-blockchain-laravel.svg?style=flat-square)](https://packagist.org/packages/offline-agency/aws-blockchain-laravel)
 
 A comprehensive Laravel package for AWS blockchain integration, specifically designed for supply chain traceability applications.
