@@ -83,6 +83,10 @@ class ContractInteractor
         string $methodName,
         array $params
     ): mixed {
+        if ($contract->address === null) {
+            throw new \RuntimeException('Contract address is required for calling methods');
+        }
+
         $result = $this->driver->callContract(
             $contract->address,
             $contract->abi ?? '[]',
@@ -258,7 +262,8 @@ class ContractInteractor
     public function formatReturnValue(mixed $value, array $options = []): string
     {
         if ($options['json'] ?? false) {
-            return json_encode($value, JSON_PRETTY_PRINT);
+            $json = json_encode($value, JSON_PRETTY_PRINT);
+            return $json !== false ? $json : '{}';
         }
 
         if (is_array($value)) {

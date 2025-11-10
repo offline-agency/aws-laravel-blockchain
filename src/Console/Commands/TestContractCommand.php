@@ -36,7 +36,15 @@ class TestContractCommand extends Command
     public function handle(): int
     {
         $contractName = $this->argument('name');
-        $network = $this->option('network');
+        $networkOption = $this->option('network');
+
+        if (! is_string($contractName)) {
+            $this->error('Contract name must be a string');
+
+            return Command::FAILURE;
+        }
+
+        $network = is_string($networkOption) ? $networkOption : 'local';
 
         try {
             $config = config('aws-blockchain-laravel.contracts', []);
@@ -77,10 +85,13 @@ class TestContractCommand extends Command
             $this->error('Testing failed: '.$e->getMessage());
             
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => false,
                     'error' => $e->getMessage(),
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             }
 
             return Command::FAILURE;
@@ -90,9 +101,10 @@ class TestContractCommand extends Command
     /**
      * Run basic tests on contract
      *
+     * @param  \AwsBlockchain\Laravel\Models\BlockchainContract  $contract
      * @return array<string, mixed>
      */
-    protected function runBasicTests($contract, ContractInteractor $interactor): array
+    protected function runBasicTests(\AwsBlockchain\Laravel\Models\BlockchainContract $contract, ContractInteractor $interactor): array
     {
         $results = [
             'total' => 0,
@@ -152,7 +164,10 @@ class TestContractCommand extends Command
     protected function displayResults(array $results): int
     {
         if ($this->option('json')) {
-            $this->line(json_encode($results, JSON_PRETTY_PRINT));
+            $jsonOutput = json_encode($results, JSON_PRETTY_PRINT);
+            if ($jsonOutput !== false) {
+                $this->line($jsonOutput);
+            }
 
             return $results['failed'] > 0 ? Command::FAILURE : Command::SUCCESS;
         }

@@ -41,11 +41,19 @@ class DeployContractCommand extends Command
     public function handle(): int
     {
         $contractName = $this->argument('name');
+        
+        if (! is_string($contractName)) {
+            $this->error('Contract name must be a string');
+
+            return Command::FAILURE;
+        }
+
         $config = config('aws-blockchain-laravel.contracts', []);
 
         // Get blockchain driver
         $blockchain = App::make('blockchain');
-        $network = $this->option('network') ?? $config['default_network'] ?? 'local';
+        $networkOption = $this->option('network');
+        $network = is_string($networkOption) ? $networkOption : ($config['default_network'] ?? 'local');
         $networkConfig = $config['networks'][$network] ?? [];
         
         $driver = $this->getDriverForNetwork($blockchain, $networkConfig);
@@ -87,10 +95,13 @@ class DeployContractCommand extends Command
             $this->error('Deployment failed: '.$e->getMessage());
             
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => false,
                     'error' => $e->getMessage(),
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             }
 
             return Command::FAILURE;
@@ -119,9 +130,9 @@ class DeployContractCommand extends Command
         }
 
         // Parse constructor parameters
-        if ($this->option('params')) {
-            $paramsString = $this->option('params');
-            $params['constructor_params'] = $this->parseParameters($paramsString);
+        $paramsOption = $this->option('params');
+        if ($paramsOption && is_string($paramsOption)) {
+            $params['constructor_params'] = $this->parseParameters($paramsOption);
         }
 
         // Gas limit
@@ -162,7 +173,10 @@ class DeployContractCommand extends Command
     protected function displayPreview(array $preview): int
     {
         if ($this->option('json')) {
-            $this->line(json_encode($preview, JSON_PRETTY_PRINT));
+            $jsonOutput = json_encode($preview, JSON_PRETTY_PRINT);
+            if ($jsonOutput !== false) {
+                $this->line($jsonOutput);
+            }
 
             return Command::SUCCESS;
         }
@@ -203,7 +217,10 @@ class DeployContractCommand extends Command
                 ],
             ];
 
-            $this->line(json_encode($output, JSON_PRETTY_PRINT));
+            $jsonOutput = json_encode($output, JSON_PRETTY_PRINT);
+            if ($jsonOutput !== false) {
+                $this->line($jsonOutput);
+            }
 
             return Command::SUCCESS;
         }
@@ -229,9 +246,11 @@ class DeployContractCommand extends Command
     /**
      * Get driver for network
      *
+     * @param  mixed  $blockchain
      * @param  array<string, mixed>  $networkConfig
+     * @return \AwsBlockchain\Laravel\Contracts\BlockchainDriverInterface
      */
-    protected function getDriverForNetwork($blockchain, array $networkConfig)
+    protected function getDriverForNetwork($blockchain, array $networkConfig): \AwsBlockchain\Laravel\Contracts\BlockchainDriverInterface
     {
         $type = $networkConfig['type'] ?? 'evm';
         

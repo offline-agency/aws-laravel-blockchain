@@ -40,6 +40,18 @@ class CallContractCommand extends Command
         $contractIdentifier = $this->argument('contract');
         $methodName = $this->argument('method');
 
+        if (! is_string($contractIdentifier)) {
+            $this->error('Contract identifier must be a string');
+
+            return Command::FAILURE;
+        }
+
+        if (! is_string($methodName)) {
+            $this->error('Method name must be a string');
+
+            return Command::FAILURE;
+        }
+
         try {
             // Find contract
             $contract = $this->findContract($contractIdentifier);
@@ -58,8 +70,9 @@ class CallContractCommand extends Command
 
             // Parse parameters
             $params = [];
-            if ($this->option('params')) {
-                $params = $interactor->parseParameters($this->option('params'));
+            $paramsOption = $this->option('params');
+            if ($paramsOption && is_string($paramsOption)) {
+                $params = $interactor->parseParameters($paramsOption);
             }
 
             // Prepare options
@@ -84,10 +97,13 @@ class CallContractCommand extends Command
             $this->error('Contract call failed: '.$e->getMessage());
             
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => false,
                     'error' => $e->getMessage(),
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             }
 
             return Command::FAILURE;
@@ -136,7 +152,10 @@ class CallContractCommand extends Command
                 'result' => $result,
             ];
 
-            $this->line(json_encode($output, JSON_PRETTY_PRINT));
+            $jsonOutput = json_encode($output, JSON_PRETTY_PRINT);
+            if ($jsonOutput !== false) {
+                $this->line($jsonOutput);
+            }
 
             return Command::SUCCESS;
         }

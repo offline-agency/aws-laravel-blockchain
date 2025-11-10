@@ -22,6 +22,24 @@ class CompileContractCommand extends Command
         $name = $this->argument('name');
         $version = $this->option('version');
 
+        if (! is_string($source)) {
+            $this->error('Source path must be a string');
+
+            return Command::FAILURE;
+        }
+
+        if (! is_string($name)) {
+            $this->error('Contract name must be a string');
+
+            return Command::FAILURE;
+        }
+
+        if (! is_string($version)) {
+            $this->error('Version must be a string');
+
+            return Command::FAILURE;
+        }
+
         try {
             $config = config('aws-blockchain-laravel.contracts.compiler', []);
             $compiler = new ContractCompiler($config);
@@ -34,12 +52,15 @@ class CompileContractCommand extends Command
             $compiler->storeArtifacts($name, $version, $result);
 
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => true,
                     'contract' => $name,
                     'version' => $version,
                     'abi_functions' => count($result['abi']),
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             } else {
                 $this->info('✓ Contract compiled successfully!');
                 $this->line("  ABI functions: ".count($result['abi']));

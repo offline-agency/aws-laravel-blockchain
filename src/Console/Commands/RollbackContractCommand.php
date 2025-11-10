@@ -25,6 +25,12 @@ class RollbackContractCommand extends Command
     {
         $identifier = $this->argument('contract');
 
+        if (! is_string($identifier)) {
+            $this->error('Contract identifier must be a string');
+
+            return Command::FAILURE;
+        }
+
         try {
             $contract = $this->findContract($identifier);
 
@@ -60,13 +66,18 @@ class RollbackContractCommand extends Command
             $options = ['from' => $this->option('from')];
 
             $this->info('Rolling back contract...');
-            $result = $upgrader->rollback($contract, $this->option('version'), $options);
+            $versionOption = $this->option('version');
+            $targetVersion = is_string($versionOption) ? $versionOption : null;
+            $result = $upgrader->rollback($contract, $targetVersion, $options);
 
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => true,
                     'restored_version' => $result['restored_contract']->version,
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             } else {
                 $this->info('✓ Contract rolled back successfully!');
                 $this->line('  Restored version: '.$result['restored_contract']->version);

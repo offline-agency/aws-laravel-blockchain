@@ -243,7 +243,7 @@ class EvmDriver implements BlockchainDriverInterface
     {
         $receipt = null;
 
-        $this->web3->eth->getTransactionReceipt($hash, function ($err, $result) use (&$receipt) {
+        $this->web3->eth->getTransactionReceipt($hash, function ($err, $result) use (&$receipt, $hash) {
             if ($err !== null || $result === null) {
                 return;
             }

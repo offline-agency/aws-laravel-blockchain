@@ -40,6 +40,13 @@ class UpgradeContractCommand extends Command
     public function handle(): int
     {
         $identifier = $this->argument('identifier');
+
+        if (! is_string($identifier)) {
+            $this->error('Contract identifier must be a string');
+
+            return Command::FAILURE;
+        }
+
         [$contractName, $currentVersion] = $this->parseIdentifier($identifier);
 
         try {
@@ -97,10 +104,13 @@ class UpgradeContractCommand extends Command
             $this->error('Upgrade failed: '.$e->getMessage());
             
             if ($this->option('json')) {
-                $this->line(json_encode([
+                $jsonOutput = json_encode([
                     'success' => false,
                     'error' => $e->getMessage(),
-                ], JSON_PRETTY_PRINT));
+                ], JSON_PRETTY_PRINT);
+                if ($jsonOutput !== false) {
+                    $this->line($jsonOutput);
+                }
             }
 
             return Command::FAILURE;
@@ -115,7 +125,8 @@ class UpgradeContractCommand extends Command
     protected function parseIdentifier(string $identifier): array
     {
         if (str_contains($identifier, '@')) {
-            return explode('@', $identifier, 2);
+            $parts = explode('@', $identifier, 2);
+            return [$parts[0], $parts[1] ?? null];
         }
 
         return [$identifier, null];
@@ -180,7 +191,10 @@ class UpgradeContractCommand extends Command
                 ],
             ];
 
-            $this->line(json_encode($output, JSON_PRETTY_PRINT));
+            $jsonOutput = json_encode($output, JSON_PRETTY_PRINT);
+            if ($jsonOutput !== false) {
+                $this->line($jsonOutput);
+            }
 
             return Command::SUCCESS;
         }
