@@ -169,4 +169,100 @@ class MockDriver implements BlockchainDriverInterface
     {
         return hash('sha256', json_encode($data).$this->type);
     }
+
+    /**
+     * Deploy a smart contract (mock implementation)
+     *
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     */
+    public function deployContract(array $params): array
+    {
+        $address = '0x'.bin2hex(random_bytes(20));
+        $transactionHash = '0x'.bin2hex(random_bytes(32));
+        $gasUsed = rand(100000, 500000);
+
+        return [
+            'address' => $address,
+            'transaction_hash' => $transactionHash,
+            'gas_used' => $gasUsed,
+            'network' => 'mock',
+            'status' => 'success',
+        ];
+    }
+
+    /**
+     * Call a contract method (mock implementation)
+     *
+     * @param  array<int, mixed>  $params
+     */
+    public function callContract(string $address, string $abi, string $method, array $params = []): mixed
+    {
+        // Return mock data based on method name
+        return match ($method) {
+            'balanceOf' => '1000000000000000000',
+            'totalSupply' => '1000000000000000000000',
+            'name' => 'Mock Token',
+            'symbol' => 'MOCK',
+            'decimals' => 18,
+            default => true,
+        };
+    }
+
+    /**
+     * Estimate gas for a transaction (mock implementation)
+     *
+     * @param  array<string, mixed>  $transaction
+     */
+    public function estimateGas(array $transaction): int
+    {
+        // Return a mock gas estimate
+        return rand(21000, 500000);
+    }
+
+    /**
+     * Get transaction receipt (mock implementation)
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getTransactionReceipt(string $hash): ?array
+    {
+        return [
+            'transactionHash' => $hash,
+            'blockNumber' => rand(1000000, 2000000),
+            'contractAddress' => '0x'.bin2hex(random_bytes(20)),
+            'gasUsed' => rand(100000, 500000),
+            'status' => true,
+            'from' => '0x'.bin2hex(random_bytes(20)),
+            'to' => '0x'.bin2hex(random_bytes(20)),
+        ];
+    }
+
+    /**
+     * Get current gas price (mock implementation)
+     */
+    public function getGasPrice(): int
+    {
+        // Return mock gas price (in wei)
+        return rand(1000000000, 50000000000); // 1-50 gwei
+    }
+
+    /**
+     * Send a transaction (mock implementation)
+     *
+     * @param  array<string, mixed>  $transaction
+     */
+    public function sendTransaction(array $transaction): string
+    {
+        return '0x'.bin2hex(random_bytes(32));
+    }
+
+    /**
+     * Get account balance (mock implementation)
+     */
+    public function getBalance(string $address): string
+    {
+        // Return mock balance in wei
+        return (string) rand(1000000000000000000, 100000000000000000000);
+    }
 }
