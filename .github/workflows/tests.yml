@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         composer require "laravel/framework:${{ matrix.laravel }}" --no-update
-        composer install --prefer-dist --no-progress --no-suggest --no-interaction --with-all-dependencies
+        composer install --prefer-dist --no-progress --no-interaction
         
     - name: Execute tests
       run: |
@@ -85,7 +85,7 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
         
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+      run: composer install --prefer-dist --no-progress --no-interaction
       
     - name: Run PHPStan
       run: vendor/bin/phpstan analyse --memory-limit=2G
@@ -120,7 +120,7 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
         
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+      run: composer install --prefer-dist --no-progress --no-interaction
       
     - name: Run security check
       run: composer audit
