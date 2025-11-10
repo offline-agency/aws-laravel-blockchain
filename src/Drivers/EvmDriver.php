@@ -155,10 +155,12 @@ class EvmDriver implements BlockchainDriverInterface
         $gasUsed = null;
 
         // Deploy contract
-        $contract->bytecode($bytecode)->new(...$constructorParams, [
+        $options = [
             'from' => $from,
             'gas' => $params['gas_limit'] ?? '3000000',
-        ], function ($err, $result) use (&$transactionHash, &$contractAddress, &$gasUsed) {
+        ];
+        
+        $callback = function ($err, $result) use (&$transactionHash, &$contractAddress, &$gasUsed) {
             if ($err !== null) {
                 throw new \RuntimeException('Contract deployment failed: '.$err->getMessage());
             }
@@ -169,7 +171,13 @@ class EvmDriver implements BlockchainDriverInterface
                 $contractAddress = $result->contractAddress;
                 $gasUsed = isset($result->gasUsed) ? hexdec($result->gasUsed) : null;
             }
-        });
+        };
+        
+        // Call new() with constructor params, then options, then callback
+        // Merge all arguments to avoid "positional argument after unpacking" error in PHP 8.0+
+        $contractInstance = $contract->bytecode($bytecode);
+        $newArgs = array_merge($constructorParams, [$options, $callback]);
+        $contractInstance->new(...$newArgs);
 
         // Wait for transaction receipt to get contract address
         if ($transactionHash && ! $contractAddress) {
@@ -204,12 +212,16 @@ class EvmDriver implements BlockchainDriverInterface
 
         $result = null;
 
-        $contract->call($method, ...$params, function ($err, $response) use (&$result) {
+        $callback = function ($err, $response) use (&$result) {
             if ($err !== null) {
                 throw new \RuntimeException('Contract call failed: '.$err->getMessage());
             }
             $result = $response;
-        });
+        };
+
+        // Build arguments array: method name, then params, then callback
+        $callArgs = array_merge([$method], $params, [$callback]);
+        $contract->call(...$callArgs);
 
         return $result;
     }
