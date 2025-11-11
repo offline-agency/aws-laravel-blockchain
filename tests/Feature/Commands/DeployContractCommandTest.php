@@ -137,4 +137,89 @@ class DeployContractCommandTest extends TestCase
         ])
             ->assertFailed(); // Will fail because contract doesn't exist, but tests the path
     }
+
+    public function test_deploy_command_display_result_with_json(): void
+    {
+        $command = $this->app->make(\AwsBlockchain\Laravel\Console\Commands\DeployContractCommand::class);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('displayResult');
+        $method->setAccessible(true);
+
+        $input = new \Symfony\Component\Console\Input\ArrayInput(
+            ['name' => 'TestContract', '--json' => true],
+            $command->getDefinition()
+        );
+        $bufferedOutput = new \Symfony\Component\Console\Output\BufferedOutput;
+        $command->setOutput(new \Illuminate\Console\OutputStyle($input, $bufferedOutput));
+
+        $inputProperty = $reflection->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($command, $input);
+
+        $contract = \AwsBlockchain\Laravel\Models\BlockchainContract::create([
+            'name' => 'TestContract',
+            'version' => '1.0.0',
+            'type' => 'evm',
+            'network' => 'local',
+            'address' => '0x1234567890123456789012345678901234567890',
+            'transaction_hash' => '0xabcdef',
+            'status' => 'deployed',
+            'abi' => json_encode([]),
+            'bytecode_hash' => 'test',
+        ]);
+
+        $result = [
+            'contract' => $contract,
+        ];
+
+        $exitCode = $method->invoke($command, $result);
+
+        $this->assertEquals(\Illuminate\Console\Command::SUCCESS, $exitCode);
+    }
+
+    public function test_deploy_command_display_result_without_json(): void
+    {
+        $command = $this->app->make(\AwsBlockchain\Laravel\Console\Commands\DeployContractCommand::class);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('displayResult');
+        $method->setAccessible(true);
+
+        $input = new \Symfony\Component\Console\Input\ArrayInput(
+            ['name' => 'TestContract'],
+            $command->getDefinition()
+        );
+        $bufferedOutput = new \Symfony\Component\Console\Output\BufferedOutput;
+        $command->setOutput(new \Illuminate\Console\OutputStyle($input, $bufferedOutput));
+
+        $inputProperty = $reflection->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($command, $input);
+
+        $contract = \AwsBlockchain\Laravel\Models\BlockchainContract::create([
+            'name' => 'TestContract',
+            'version' => '1.0.0',
+            'type' => 'evm',
+            'network' => 'local',
+            'address' => '0x1234567890123456789012345678901234567890',
+            'transaction_hash' => '0xabcdef',
+            'gas_used' => '21000',
+            'status' => 'deployed',
+            'abi' => json_encode([]),
+            'bytecode_hash' => 'test',
+        ]);
+
+        $result = [
+            'contract' => $contract,
+        ];
+
+        $exitCode = $method->invoke($command, $result);
+
+        $this->assertEquals(\Illuminate\Console\Command::SUCCESS, $exitCode);
+        // Get output from the command's output property
+        $outputProperty = $reflection->getProperty('output');
+        $outputProperty->setAccessible(true);
+        $outputStyle = $outputProperty->getValue($command);
+        $outputContent = $outputStyle->getOutput()->fetch();
+        $this->assertStringContainsString('deployed successfully', $outputContent);
+    }
 }

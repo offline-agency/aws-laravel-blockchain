@@ -145,7 +145,7 @@ class CallContractCommand extends Command
      */
     protected function displayResult(string $methodName, mixed $result, array $options): int
     {
-        if ($options['json']) {
+        if (isset($options['json']) && $options['json']) {
             $output = [
                 'success' => true,
                 'method' => $methodName,

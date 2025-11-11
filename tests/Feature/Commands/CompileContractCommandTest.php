@@ -100,4 +100,59 @@ class CompileContractCommandTest extends TestCase
             }
         }
     }
+
+    public function test_compile_command_handles_compilation_exception(): void
+    {
+        $command = $this->app->make(\AwsBlockchain\Laravel\Console\Commands\CompileContractCommand::class);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('handle');
+        $method->setAccessible(true);
+
+        $input = new \Symfony\Component\Console\Input\ArrayInput(
+            [
+                'source' => '/nonexistent/file.sol',
+                'name' => 'TestContract',
+                '--contract-version' => '1.0.0',
+            ],
+            $command->getDefinition()
+        );
+        $bufferedOutput = new \Symfony\Component\Console\Output\BufferedOutput;
+        $command->setOutput(new \Illuminate\Console\OutputStyle($input, $bufferedOutput));
+
+        $inputProperty = $reflection->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($command, $input);
+
+        $exitCode = $method->invoke($command);
+
+        $this->assertEquals(\Illuminate\Console\Command::FAILURE, $exitCode);
+    }
+
+    public function test_compile_command_json_output_on_error(): void
+    {
+        $command = $this->app->make(\AwsBlockchain\Laravel\Console\Commands\CompileContractCommand::class);
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('handle');
+        $method->setAccessible(true);
+
+        $input = new \Symfony\Component\Console\Input\ArrayInput(
+            [
+                'source' => '/nonexistent/file.sol',
+                'name' => 'TestContract',
+                '--json' => true,
+                '--contract-version' => '1.0.0',
+            ],
+            $command->getDefinition()
+        );
+        $bufferedOutput = new \Symfony\Component\Console\Output\BufferedOutput;
+        $command->setOutput(new \Illuminate\Console\OutputStyle($input, $bufferedOutput));
+
+        $inputProperty = $reflection->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($command, $input);
+
+        $exitCode = $method->invoke($command);
+
+        $this->assertEquals(\Illuminate\Console\Command::FAILURE, $exitCode);
+    }
 }
