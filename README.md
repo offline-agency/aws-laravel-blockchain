@@ -25,7 +25,11 @@ A comprehensive Laravel package for AWS blockchain integration, specifically des
 
 ## Installation
 
-This package can be included as a local package in your Laravel project. It's automatically loaded via Composer autoloading.
+You can install the package via Composer:
+
+```bash
+composer require offline-agency/aws-blockchain-laravel
+```
 
 ## Configuration
 
