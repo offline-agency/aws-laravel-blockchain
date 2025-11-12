@@ -8,7 +8,7 @@
 
 A comprehensive Laravel package for AWS blockchain integration, specifically designed for supply chain traceability applications.
 
-![AWS Blockchain Laravel Banner](https://banners.beyondco.de/My%20Package.png?theme=dark&packageManager=composer+require&packageName=vendor%2Fmy-awesome-package&pattern=cage&style=style_2&description=A+comprehensive+Laravel+package+for+AWS+blockchain+integration%2C+specifically+designed+for+supply+chain+traceability+applications&md=1&showWatermark=1&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
+![AWS Blockchain Laravel Banner](https://banners.beyondco.de/AWS%20Blockchain%20Laravel.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Faws-blockchain-laravel&pattern=cage&style=style_2&description=A+comprehensive+Laravel+package+for+AWS+blockchain+integration%2C+specifically+designed+for+supply+chain+traceability+applications&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
 
 ## Features
 
@@ -23,8 +23,6 @@ A comprehensive Laravel package for AWS blockchain integration, specifically des
 - **Gas Estimation**: Automatic gas estimation and transaction preview
 - **Contract Upgrades**: Support for upgradeable contracts with rollback capability
 
-
-https://banners.beyondco.de/AWS%20Blockchain%20Laravel.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Ffilament-spid&pattern=eyes&style=style_1&description=A+Laravel+package+for+integrating+and+interacting+with+AWS+Blockchain+services&md=1&showWatermark=1&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg
 ## Installation
 
 This package can be included as a local package in your Laravel project. It's automatically loaded via Composer autoloading.
